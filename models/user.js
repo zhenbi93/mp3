@@ -1,10 +1,19 @@
-// Load required packages
 var mongoose = require('mongoose');
 
-// Define our user schema
 var UserSchema = new mongoose.Schema({
-    name: String
+    name: { type: String, required: true, trim: true, cast: false },
+    email: { type: String, required: true, trim: true, cast: false, unique: true },
+    pendingTasks: {
+        type: [{ type: String, cast: false }],
+        default: [],
+        castNonArrays: false
+    },
+    dateCreated: { type: Date, default: Date.now, immutable: true }
 });
 
-// Export the Mongoose model
+// Ignore client-provided creation dates.
+UserSchema.pre('validate', function () {
+    if (this.isNew) this.dateCreated = new Date();
+});
+
 module.exports = mongoose.model('User', UserSchema);
